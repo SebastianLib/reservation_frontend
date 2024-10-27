@@ -44,12 +44,18 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken;
       session.user = token.user
-        console.log(session);
         
       return session;
     },
   },
 
+  pages:{
+    signIn: "/signin",
+    // signOut: "/auth/signout",
+    // error: "/auth/error",
+    // verifyRequest: "/auth/verify",
+    // newUser: "/auth/new-user",
+  }
 };
 
 const handler = NextAuth(authOptions);

@@ -1,24 +1,36 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
+import { signOut } from "next-auth/react";
+import { Button } from "./ui/button";
 
 const SignInButton = () => {
-  const { data: session } = useSession();
-  console.log({ session });
+  const { data: session, status } = useSession();
 
-  if (session && session.user)
+  // Wyświetl komunikat ładowania podczas wczytywania sesji
+  if (status === "loading") {
+    return <p>Ładowanie...</p>;
+  }
+
+  if (session && session.user) {
     return (
       <div className="flex gap-4 ml-auto">
         <p className="text-sky-600">{session.user.name}</p>
-        <Link
-          href={"/api/auth/signout"}
-          className="flex gap-4 ml-auto text-red-600"
+        <Button
+          onClick={() =>
+            signOut({
+              redirect: true,
+              callbackUrl: `${window.location.origin}/`,
+            })
+          }
         >
-          Sign Out
-        </Link>
+          Sign out
+        </Button>
       </div>
     );
+  }
 
   return (
     <div className="flex gap-4 ml-auto items-center">
