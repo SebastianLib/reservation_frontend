@@ -4,10 +4,9 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      name: string | null | undefined; // Pole może być opcjonalne
-      surname: string | null | undefined; // Pole może być opcjonalne
-      email: string;
-      phone: string | null | undefined; // Pole może być opcjonalne
+      name: string | null | undefined; 
+      surname: string | null | undefined; 
+      phone: string | null | undefined;
       role: string;
       image: string | null;
       status: string;
@@ -27,7 +26,6 @@ declare module "next-auth/jwt" {
       id: string;
       name: string 
       surname: string 
-      email: string;
       phone: string 
       role: string;
       image: string | null;

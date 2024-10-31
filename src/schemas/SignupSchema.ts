@@ -1,3 +1,4 @@
+import { ROLES } from "@/types/UserType";
 import { z } from "zod";
 
 export const createSignupSchema = () => {
@@ -9,13 +10,10 @@ export const createSignupSchema = () => {
       surname: z
         .string()
         .min(2, { message: "Nazwisko musi mieć co najmniej 2 znaki." }),
-      email: z
-        .string()
-        .email({ message: "Nieprawidłowy adres email." }),
       phone: z
         .string()
         .min(8, { message: "Numer telefonu musi mieć co najmniej 8 cyfr." }),
-      role: z.boolean(), 
+        role: z.nativeEnum(ROLES),
       password: z
         .string()
         .min(6, { message: "Hasło musi mieć co najmniej 6 znaków." }),

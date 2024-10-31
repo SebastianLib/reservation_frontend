@@ -52,7 +52,7 @@ const MobileNavbar = () => {
                   </Link>
                 </li>
                 <li className="text-xl cursor-pointer transition-color duration-300 text-cyan-500 font-bold">
-                  <Link href="/add-salon" onClick={closeMenu}>
+                  <Link href="/signup-business" onClick={closeMenu}>
                     Dodaj Salon
                   </Link>
                 </li>

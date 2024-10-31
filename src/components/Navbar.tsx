@@ -47,7 +47,7 @@ const Navbar = () => {
               Rejestracja
             </Link>
             <Link
-              href={"/signup"}
+              href={"/signup-business"}
               className="flex gap-4 text-xl font-semibold text-cyan-500 py-2 px-4 rounded border-2 border-cyan-500 transition-colors
             hover:bg-cyan-500 hover:text-white"
             >

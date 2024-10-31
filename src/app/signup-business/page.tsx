@@ -15,33 +15,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { createSignupSchema, SignupSchemaType } from "@/schemas/SignupSchema";
 import { useCreateUser } from "@/hooks/useCreateUser";
 import { PhoneInput } from "@/components/ui/PhoneInput";
-import { signIn, useSession } from "next-auth/react";
+import { signIn} from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { ROLES } from "@/types/UserType";
 
-const SignupPage = () => {
-  const [isWorker, setIsWorker] = useState<boolean>(false);
+const SignupBusinessPage = () => {
   const router = useRouter();
   const formSchema = createSignupSchema();
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues:{
-      role: ROLES.CUSTOMER
+      role: ROLES.OWNER
     }
   });
   const { mutate: createUserMutation } = useCreateUser();
 
   async function onSubmit(values: SignupSchemaType) {  
     const { confirmPassword, ...rest } = values;
-
-    const userData = {
-      ...rest,
-      role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER,
-    };
     
-    createUserMutation(userData, {
+    createUserMutation(rest, {
       onSuccess: async () => {
         const result = await signIn("credentials", {
           phone: values.phone.substring(3),
@@ -71,7 +64,7 @@ const SignupPage = () => {
             className="space-y-4 max-w-[600px] w-full bg-white shadow-2xl p-8 rounded-xl mx-2"
           >
             <h2 className="text-center text-2xl md:text-4xl text-cyan-500 font-bold">
-              Rejestracja
+              Rejestracja konta biznesowego
             </h2>
 
             <FormField
@@ -168,26 +161,11 @@ const SignupPage = () => {
               )}
             />
 
-            <div>
-              <Checkbox
-                className="mt-1"
-                checked={isWorker}
-                onCheckedChange={() => setIsWorker(!isWorker)}
-                id="role"
-              />
-              <FormLabel
-                htmlFor="role"
-                className="ml-2 text-xl text-black/70 font-semibold"
-              >
-                Czy jesteś pracownikiem?
-              </FormLabel>
-            </div>
-
             <Button
               type="submit"
               className="bg-cyan-500 hover:bg-cyan-600 text-white w-full text-xl md:text-2xl py-4 md:py-8"
             >
-              Zarejestruj się!
+              Zarejestruj konto biznesowe!
             </Button>
           </form>
         </Form>
@@ -196,4 +174,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default SignupBusinessPage;

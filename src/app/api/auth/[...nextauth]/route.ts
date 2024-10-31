@@ -1,32 +1,29 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "Phone",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        phone: { label: "Numer telefonu", type: "text" }, 
+        password: { label: "Hasło", type: "password" },
       },
       async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const { phone, password } = credentials!;
+        
+        if (!phone || !password) return null;
 
-        const { email, password } = credentials;
-        const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/users/signin", {
+        // Logowanie użytkownika
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signin`, {
           method: "POST",
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          body: JSON.stringify({ phone, password }), 
           headers: {
             "Content-Type": "application/json",
           },
         });
 
         if (!res.ok) {
-          console.log(res.statusText);
           return null;
         }
 
@@ -37,25 +34,28 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, session,trigger }) {
+
+      if(trigger === "update" && session?.status){    
+        console.log(session);
+            
+      token.user.status = session.status;
+      }
+
       return { ...token, ...user };
     },
 
-    async session({ session, token }) {
+    async session({ session, token }) {      
       session.accessToken = token.accessToken;
-      session.user = token.user
-        
+      session.user = token.user;
+
       return session;
     },
   },
 
-  pages:{
+  pages: {
     signIn: "/signin",
-    // signOut: "/auth/signout",
-    // error: "/auth/error",
-    // verifyRequest: "/auth/verify",
-    // newUser: "/auth/new-user",
-  }
+  },
 };
 
 const handler = NextAuth(authOptions);

@@ -1,28 +1,24 @@
 import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { SignupSchemaType } from "@/schemas/SignupSchema";
-import { UserType } from "@/types/UserType";
 
-const createUser = async (data: Partial<SignupSchemaType>):Promise<UserType> => {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`, data);
-
-    return response.data;
+const verificationUser = async ({ id, code }: { id: string, code: string }) => {
+    await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verification/${id}/${code}`);
 };
 
-export const useCreateUser = () => {
+export const useVerificationUser = () => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Partial<SignupSchemaType>) => createUser(data),
-        onSuccess: (data) => {
+        mutationFn: ({ id, code }: { id: string; code: string }) =>
+            verificationUser({ id, code }),
+        onSuccess: () => {
             toast({
-                title: "Użytkownik został zarejestrowany!",
-                description: "Aby konto zostało aktywowane potwierdź numer telefonu.",
+                title: "Poprawny kod!",
+                description: "Twoje konto zostało aktywowane.",
             });
             queryClient.invalidateQueries();
-            return data
         },
         onError: (error: unknown) => {
             let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";
@@ -30,13 +26,12 @@ export const useCreateUser = () => {
             if (axios.isAxiosError(error)) {
                 errorMessage = error.response?.data?.message || errorMessage;
             }
-            console.log(errorMessage);
+            console.log(error);
 
             toast({
                 variant: "destructive",
-                title: "Błąd rejestracji",
+                title: "Błąd weryfikacji",
                 description: errorMessage,
-
             });
         },
     });
