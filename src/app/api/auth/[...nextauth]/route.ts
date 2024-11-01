@@ -8,16 +8,17 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         phone: { label: "Numer telefonu", type: "text" }, 
         password: { label: "Hasło", type: "password" },
+        role: { label: "Rola", type: "text" },
       },
       async authorize(credentials, req) {
-        const { phone, password } = credentials!;
+        const { phone, password, role } = credentials!;
         
-        if (!phone || !password) return null;
+        if (!phone || !password || !role) return null;
 
         // Logowanie użytkownika
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signin`, {
           method: "POST",
-          body: JSON.stringify({ phone, password }), 
+          body: JSON.stringify({ phone, password, role }), 
           headers: {
             "Content-Type": "application/json",
           },

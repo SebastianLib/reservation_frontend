@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -18,49 +19,57 @@ import { PhoneInput } from "@/components/ui/PhoneInput";
 import { signIn, useSession } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ROLES } from "@/types/UserType";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const SignupPage = () => {
-  const [isWorker, setIsWorker] = useState<boolean>(false);
+  const [isWorker, setIsWorker] = useState(false);
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const formSchema = createSignupSchema();
   const form = useForm<SignupSchemaType>({
-    resolver: zodResolver(formSchema),
-    defaultValues:{
-      role: ROLES.CUSTOMER
-    }
+    resolver: zodResolver(createSignupSchema()),
+    defaultValues: {
+      role: ROLES.CUSTOMER,
+    },
   });
   const { mutate: createUserMutation } = useCreateUser();
 
-  async function onSubmit(values: SignupSchemaType) {  
-    const { confirmPassword, ...rest } = values;
+  useEffect(() => {
+    if (session) {
+      router.push("/");
+    }
+  }, [session, router]);
 
-    const userData = {
-      ...rest,
-      role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER,
-    };
-    
-    createUserMutation(userData, {
-      onSuccess: async () => {
-        const result = await signIn("credentials", {
-          phone: values.phone.substring(3),
-          password: values.password,
-          redirect: false,
-        });
+  const onSubmit = async (values: SignupSchemaType) => {
+    const { confirmPassword, ...userData } = values;
 
-        if (result?.error) {
-          toast({
-            variant: "destructive",
-            title: "Błąd logowania",
-            description: "Zły numer telefonu albo hasło.",
+    createUserMutation(
+      { ...userData, role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER },
+      {
+        onSuccess: async () => {
+          const result = await signIn("credentials", {
+            phone: values.phone.substring(3),
+            password: values.password,
+            role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER,
+            redirect: false,
           });
-        } else {
-          router.push("/verification");
-        }
-      },
-    });
-  }
+
+          if (result?.error) {
+            toast({
+              variant: "destructive",
+              title: "Błąd logowania",
+              description: "Zły numer telefonu albo hasło.",
+            });
+          } else {
+            router.push("/verification");
+          }
+        },
+      }
+    );
+  };
+
+  if (status === "loading") return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen pt-32 bg-cyan-500">
@@ -168,18 +177,17 @@ const SignupPage = () => {
               )}
             />
 
-            <div>
+            <div className="flex items-center mt-4 ">
               <Checkbox
-                className="mt-1"
                 checked={isWorker}
-                onCheckedChange={() => setIsWorker(!isWorker)}
+                onClick={() => setIsWorker((prev) => !prev)}
                 id="role"
               />
               <FormLabel
                 htmlFor="role"
-                className="ml-2 text-xl text-black/70 font-semibold"
+                className="ml-2 text-xl text-black/70 font-semibold cursor-pointer"
               >
-                Czy jesteś pracownikiem?
+                Czy jest to konto pracownicze?
               </FormLabel>
             </div>
 

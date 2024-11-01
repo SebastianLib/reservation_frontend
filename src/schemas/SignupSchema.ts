@@ -5,20 +5,21 @@ export const createSignupSchema = () => {
   return z
     .object({
       username: z
-        .string()
+        .string({ message: "Wymagane" })
         .min(2, { message: "Imię musi mieć co najmniej 2 znaki." }),
       surname: z
-        .string()
+        .string({ message: "Wymagane" })
+        .min(1, { message: "Nazwisko jest wymagane." }) // Wymagana długość 1
         .min(2, { message: "Nazwisko musi mieć co najmniej 2 znaki." }),
       phone: z
-        .string()
+        .string({ message: "Wymagane" })
         .min(8, { message: "Numer telefonu musi mieć co najmniej 8 cyfr." }),
-        role: z.nativeEnum(ROLES),
+      role: z.nativeEnum(ROLES),
       password: z
-        .string()
+        .string({ message: "Wymagane" })
         .min(6, { message: "Hasło musi mieć co najmniej 6 znaków." }),
       confirmPassword: z
-        .string()
+        .string({ message: "Wymagane" })
         .min(6, { message: "Hasło musi mieć co najmniej 6 znaków." }),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -27,5 +28,5 @@ export const createSignupSchema = () => {
     });
 };
 
-
 export type SignupSchemaType = z.infer<ReturnType<typeof createSignupSchema>>;
+

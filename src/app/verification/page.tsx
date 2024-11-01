@@ -55,7 +55,7 @@ const VerificationPage = () => {
             className="space-y-4 max-w-[600px] w-full bg-white shadow-2xl p-8 rounded-xl mx-2"
           >
             <h2 className="text-center text-2xl text-cyan-500 font-bold">
-              Wpisz 4-cyfrowy kod wysłany na Twój numer telefonu.
+              Wpisz 6-cyfrowy kod wysłany na Twój numer telefonu.
             </h2>
             <FormField
               control={form.control}
@@ -65,8 +65,8 @@ const VerificationPage = () => {
                   <FormLabel>Kod Weryfikacyjny</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="0000"
-                      maxLength={4}
+                      placeholder="000000"
+                      maxLength={6}
                       {...field}
                       inputMode="numeric"
                     />

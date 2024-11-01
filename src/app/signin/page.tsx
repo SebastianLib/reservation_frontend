@@ -13,25 +13,32 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createSignInSchema, SignInSchemaType } from "@/schemas/SignInSchema";
-import { signIn, useSession } from "next-auth/react"; // Używamy useSession do uzyskania sesji
-import { useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation"; // Dodajemy useRouter do nawigacji
+import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { ROLES } from "@/types/UserType";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const SignInPage = () => {
+  const [accountType, setAccountType] = useState(ROLES.CUSTOMER);
   const { toast } = useToast();
   const router = useRouter();
-  const { data: session } = useSession(); 
+  const { data: session, status } = useSession();
 
-  const formSchema = createSignInSchema();
   const form = useForm<SignInSchemaType>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createSignInSchema()),
+    defaultValues: {
+      role: ROLES.CUSTOMER,
+    },
   });
 
   const onSubmit = async (values: SignInSchemaType) => {
     const result = await signIn("credentials", {
       phone: values.phone,
       password: values.password,
+      role: accountType,
       redirect: false,
     });
 
@@ -42,21 +49,18 @@ const SignInPage = () => {
         description: "Zły numer telefonu albo hasło.",
       });
     } else {
-      form.reset(); 
+      form.reset();
     }
   };
 
   useEffect(() => {
-
     if (session) {
-      const userStatus = session.user?.status; 
-      if (userStatus === "ACTIVATED") {
-        router.push("/");
-      } else {
-        router.push("/verification");
-      }
+      const userStatus = session.user?.status;
+      router.push(userStatus === "ACTIVATED" ? "/" : "/verification");
     }
   }, [session, router]);
+
+  if (status === "loading") return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen pt-32 bg-cyan-500 ">
@@ -109,6 +113,48 @@ const SignInPage = () => {
                 </FormItem>
               )}
             />
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold">Na które konto chcesz się zalogować?</h2>
+              <div className="flex items-center mt-4r">
+                <Checkbox
+                  checked={accountType === ROLES.CUSTOMER}
+                  onClick={() => setAccountType(ROLES.CUSTOMER)}
+                  id="customer"
+                />
+                <FormLabel
+                  htmlFor="customer"
+                  className="ml-2 text-xl text-black/70 font-semibold cursor-pointer"
+                >
+                  Zwykłe
+                </FormLabel>
+              </div>
+              <div className="flex items-center mt-4r">
+                <Checkbox
+                  checked={accountType === ROLES.WORKER}
+                  onClick={() => setAccountType(ROLES.WORKER)}
+                  id="worker"
+                />
+                <FormLabel
+                  htmlFor="worker"
+                  className="ml-2 text-xl text-black/70 font-semibold cursor-pointer"
+                >
+                  Pracownicze
+                </FormLabel>
+              </div>
+              <div className="flex items-center mt-4r">
+                <Checkbox
+                  checked={accountType === ROLES.OWNER}
+                  onClick={() => setAccountType(ROLES.OWNER)}
+                  id="owner"
+                />
+                <FormLabel
+                  htmlFor="owner"
+                  className="ml-2 text-xl text-black/70 font-semibold cursor-pointer"
+                >
+                  Biznesowe
+                </FormLabel>
+              </div>{" "}
+            </div>
 
             <Button
               type="submit"
