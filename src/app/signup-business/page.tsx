@@ -11,14 +11,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createSignupSchema, SignupSchemaType } from "@/schemas/SignupSchema";
-import { useCreateUser } from "@/hooks/useCreateUser";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import { signIn} from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ROLES } from "@/types/UserType";
+import { ROLES } from "@/models/user";
+import { useCreateUserMutation } from "@/hooks/user-queries";
 
 const SignupBusinessPage = () => {
   const router = useRouter();
@@ -29,16 +28,17 @@ const SignupBusinessPage = () => {
       role: ROLES.OWNER
     }
   });
-  const { mutate: createUserMutation } = useCreateUser();
+  const { mutate: createUserMutation } = useCreateUserMutation();
 
   async function onSubmit(values: SignupSchemaType) {  
     const { confirmPassword, ...rest } = values;
-    
+      
     createUserMutation(rest, {
       onSuccess: async () => {
         const result = await signIn("credentials", {
           phone: values.phone.substring(3),
           password: values.password,
+          role: values.role,
           redirect: false,
         });
 

@@ -1,4 +1,4 @@
-import { ROLES } from "@/types/UserType";
+import { ROLES } from "@/models/user";
 import { z } from "zod";
 
 export const createSignInSchema = () => {

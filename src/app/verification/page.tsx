@@ -16,9 +16,9 @@ import {
   verficationCodeSchema,
   VerificationCodeSchemaType,
 } from "@/schemas/VerificationCodeSchema";
-import { useVerificationUser } from "@/hooks/useVerificationUser";
 import { useSession } from "next-auth/react"; // Importuj useSession
 import { redirect, useRouter } from "next/navigation";
+import { useVerificationUserMutation } from "@/hooks/user-queries";
 
 const VerificationPage = () => {
     const { data: session, update } = useSession(); // Uzyskaj sesję użytkownika
@@ -26,7 +26,7 @@ const VerificationPage = () => {
       resolver: zodResolver(verficationCodeSchema()),
     });
   
-    const { mutate: verifyUserMutation } = useVerificationUser();
+    const { mutate: verifyUserMutation } = useVerificationUserMutation();
     const router = useRouter(); // Initialize useRouter
   
     function onSubmit(values: VerificationCodeSchemaType) {

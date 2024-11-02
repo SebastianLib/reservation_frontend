@@ -14,14 +14,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createSignupSchema, SignupSchemaType } from "@/schemas/SignupSchema";
-import { useCreateUser } from "@/hooks/useCreateUser";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import { signIn, useSession } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ROLES } from "@/types/UserType";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { ROLES } from "@/models/user";
+import { useCreateUserMutation } from "@/hooks/user-queries";
 
 const SignupPage = () => {
   const [isWorker, setIsWorker] = useState(false);
@@ -33,7 +33,7 @@ const SignupPage = () => {
       role: ROLES.CUSTOMER,
     },
   });
-  const { mutate: createUserMutation } = useCreateUser();
+  const { mutate: createUserMutation } = useCreateUserMutation();
 
   useEffect(() => {
     if (session) {

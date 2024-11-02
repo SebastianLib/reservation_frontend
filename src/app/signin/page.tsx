@@ -18,8 +18,8 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { ROLES } from "@/types/UserType";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ROLES } from "@/models/user";
 
 const SignInPage = () => {
   const [accountType, setAccountType] = useState(ROLES.CUSTOMER);

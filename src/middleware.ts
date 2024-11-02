@@ -5,7 +5,6 @@ export default withAuth(
     function middleware(request: NextRequestWithAuth) {
         const user = request.nextauth.token?.user;
         const currentPath = request.nextUrl.pathname;
-        console.log("Xdddd");
         
         // Protected and restricted routes definitions
         const protectedRoutes = ["/verification", "/profile", "/"];
