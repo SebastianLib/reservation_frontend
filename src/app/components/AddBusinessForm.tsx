@@ -32,6 +32,8 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { useCreateUploadMutation } from "@/hooks/upload-queries";
 import Image from "next/image";
+import { useGenerateHours } from "@/hooks/useGenerateHours";
+import OpeningHours from "./OpeningHours";
 
 interface AddBusinessProps {
   categories?: CategoryEntity[];
@@ -41,8 +43,81 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
   const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [images, setImages] = useState<File[]>([]); // Przechowuj przesyłane obrazy
+  const [images, setImages] = useState<File[]>([]);
   const uploadMutation = useCreateUploadMutation();
+  const hours = useGenerateHours();
+
+  const polishDaysOfWeek = {
+    monday: "Poniedziałek",
+    tuesday: "Wtorek",
+    wednesday: "Środa",
+    thursday: "Czwartek",
+    friday: "Piątek",
+    saturday: "Sobota",
+    sunday: "Niedziela",
+  };
+
+  type WeekDays =
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday";
+  const openHours: Record<
+    WeekDays,
+    { isOpen: boolean; open: string; close: string }
+  > = {
+    monday: {
+      isOpen: true,
+      open: "08:00",
+      close: "16:00",
+    },
+    tuesday: {
+      isOpen: true,
+      open: "08:00",
+      close: "16:00",
+    },
+    wednesday: {
+      isOpen: true,
+      open: "08:00",
+      close: "16:00",
+    },
+    thursday: {
+      isOpen: true,
+      open: "08:00",
+      close: "16:00",
+    },
+    friday: {
+      isOpen: true,
+      open: "08:00",
+      close: "16:00",
+    },
+    saturday: {
+      isOpen: false,
+      open: "08:00",
+      close: "16:00",
+    },
+    sunday: {
+      isOpen: false,
+      open: "08:00",
+      close: "16:00",
+    },
+  };
+  const [openHoursState, setOpenHoursState] = useState(openHours);
+
+
+
+  const handleHoursChange = (
+    updatedHours: Record<
+      WeekDays,
+      { isOpen: boolean; open: string; close: string }
+    >
+  ) => {
+    setOpenHoursState(updatedHours);
+    form.setValue("openHours", updatedHours);
+  };
 
   const form = useForm<CreateBusinessSchemaType>({
     resolver: zodResolver(createBusinessSchema()),
@@ -50,6 +125,7 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
       ownerId: Number(session?.user.id),
       categoriesIds: [],
       images: [],
+      openHours: openHours,
     },
   });
 
@@ -96,9 +172,9 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <h2 className="text-center text-2xl md:text-3xl font-semibold">
-            Krok {step} z 5
+            Krok {step} z 6
           </h2>
-          <Progress value={(step / 5) * 100} />
+          <Progress value={(step / 6) * 100} />
         </div>
 
         {/* Krok 1: Nazwa i opis */}
@@ -293,58 +369,80 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
               )}
             />
 
-            {/* <FormField
+            <FormField
               control={form.control}
               name="images"
               render={({ field }) => (
                 <FormItem className="space-y-1">
-                  <FormLabel className="text-xl text-black/70 font-semibold">Obrazy (przeciągnij i upuść)</FormLabel>
-                  <FormControl> */}
-            <div className="flex flex-col space-y-2">
-              <FormLabel className="text-xl text-black/70 font-semibold">
-                Dodaj zdjęcia salonu
-              </FormLabel>
-              <div {...getRootProps({ className: "dropzone" })}>
-                <input {...getInputProps()} />
-                {isDragActive ? (
-                  <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">Upuść zdjęcia tutaj ...</Button>
-                ) : (
-                  <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">Przeciągnij zdjęcia lub kliknij, aby wybrać.</Button>
-                )}
-              </div>
-              {images.length > 0 && (
-                <div className="flex flex-col gap-4">
-                  <h2 className="text-lg mt-4">Przesłane obrazy:</h2>
-                  <ul className="grid grid-cols-2 gap-4">
-                    {images.map((file, index) => (
-                      <li
-                        key={file.name}
-                        className="flex flex-col items-center cursor-pointer"
-                      >
-                        <Image
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="object-cover mb-2"
-                          width={400}
-                          height={150}
-                        />
-                        <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={() => setImages(prev => prev.filter((_, i) => i !== index))} 
-                          className="text-sm text-white w-full"
-                        >Usuń</Button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            {/* </FormControl>
+                  <FormLabel className="text-xl text-black/70 font-semibold">
+                    Obrazy (przeciągnij i upuść)
+                  </FormLabel>
+                  <FormControl>
+                    <>
+                      <div {...getRootProps({ className: "dropzone" })}>
+                        <input {...getInputProps()} />
+                        {isDragActive ? (
+                          <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">
+                            Upuść zdjęcia tutaj ...
+                          </Button>
+                        ) : (
+                          <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">
+                            Przeciągnij zdjęcia lub kliknij, aby wybrać.
+                          </Button>
+                        )}
+                      </div>
+                      {images.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                          <h2 className="text-lg mt-4">Przesłane obrazy:</h2>
+                          <ul className="grid grid-cols-2 gap-4">
+                            {images.map((file, index) => (
+                              <li
+                                key={file.name}
+                                className="flex flex-col items-center cursor-pointer"
+                              >
+                                <Image
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="object-cover mb-2"
+                                  width={400}
+                                  height={150}
+                                />
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  onClick={() =>
+                                    setImages((prev) =>
+                                      prev.filter((_, i) => i !== index)
+                                    )
+                                  }
+                                  className="text-sm text-white w-full"
+                                >
+                                  Usuń
+                                </Button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
+            />
+          </>
+        )}
+
+        {step === 6 && (
+          <>
+            <h2 className="text-center text-2xl md:text-3xl font-bold">
+              Godziny otwarcia
+            </h2>
+            <OpeningHours
+              initialHours={openHoursState}
+              onHoursChange={handleHoursChange}
+              hoursOptions={hours}
+            />
           </>
         )}
 
@@ -358,7 +456,7 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
           >
             Wróć
           </Button>
-          {step < 5 ? (
+          {step < 6 ? (
             <Button
               type="button"
               onClick={nextStep}
