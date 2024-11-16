@@ -55,7 +55,7 @@ const OpeningHours = ({ initialHours, onHoursChange, hoursOptions }: OpeningHour
               checked={openHoursState[day].isOpen}
               onCheckedChange={(isOpen) => handleOpenHoursChange(day, isOpen)}
             />
-            <p className="text-xl font-semibold">{polishDaysOfWeek[day]}</p>
+            <p className="text-xl font-semibold">{polishDaysOfWeek[day as keyof typeof polishDaysOfWeek]}</p>
           </div>
           <div>
             {openHoursState[day].isOpen ? (

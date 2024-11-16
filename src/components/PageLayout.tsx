@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 
-const PageLayout = ({ children }: { children: ReactNode }) => {
+const PageLayout = ({ children, className }: { children: ReactNode; className?: string }) => {
   return (
-    <section className="min-h-screen pt-32 bg-cyan-500 text-white">
+    <section className={`min-h-screen pt-24 bg-cyan-500 text-white ${className}`}>
       {children}
     </section>
   );

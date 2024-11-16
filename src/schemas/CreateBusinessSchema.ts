@@ -18,20 +18,28 @@ const weeklyHoursSchema = z.object({
 
 export const createBusinessSchema = () => {
   return z.object({
-    name: z.string().nonempty({ message: "Nazwa jest wymagana" }),
+    name: z.string({ message: "Nazwa jest wymagana" }),
     description: z.string().optional(),
-    phone: z.string().optional(),
+    phone: z.string({ message: "Numer telefonu jest wymagany" }),
     email: z.string().email({ message: "Niepoprawny format e-maila" }).optional(),
-    categoriesIds: z.array(z.number().int().positive()).optional(),
-    street: z.string().optional(),
-    buildingNumber: z.string().optional(),
-    postalCode: z.string().optional(),
-    city: z.string().optional(),
-    images: z.array(z.instanceof(File)).optional(),
-    ownerId: z.number().int().positive({ message: "Id właściciela jest wymagane" }), 
+    categoriesIds: z
+      .array(z.number().int().positive(), {
+        required_error: "Musisz wybrać co najmniej jedną kategorię",
+      })
+      .min(1, { message: "Musisz wybrać co najmniej jedną kategorię" }),
+
+    city: z.string({ message: "Miasto jest wymagane" }),
+    street: z.string({ message: "Ulica jest wymagana" }),
+    buildingNumber: z.string({ message: "Numer budynku jest wymagany" }),
+    postalCode: z.string({ message: "Kod pocztowy jest wymagany" }),
+
+    images: z.array(z.number()).optional(),
+    ownerId: z.number().int().positive({ message: "Id właściciela jest wymagane" }),
     workersIds: z.array(z.number().int().positive()).optional(),
-    openHours: weeklyHoursSchema.optional(), 
+    openHours: weeklyHoursSchema.optional(),
   });
 };
+
+
 
 export type CreateBusinessSchemaType = z.infer<ReturnType<typeof createBusinessSchema>>;

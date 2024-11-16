@@ -1,3 +1,5 @@
+import { BusinessEntity } from "./business";
+
 export interface UserEntity {
     id: number;
     username: string;
@@ -9,6 +11,8 @@ export interface UserEntity {
     image?: string | null;
     status: USER_STATUS;
     verificationCode: string | null;
+    ownedBusinesses: BusinessEntity[];
+    businesses: BusinessEntity[];
 }
 
 export enum USER_STATUS {

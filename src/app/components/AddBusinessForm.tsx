@@ -34,6 +34,7 @@ import { useCreateUploadMutation } from "@/hooks/upload-queries";
 import Image from "next/image";
 import { useGenerateHours } from "@/hooks/useGenerateHours";
 import OpeningHours from "./OpeningHours";
+import { useCreateBusiness } from "@/hooks/business-queries";
 
 interface AddBusinessProps {
   categories?: CategoryEntity[];
@@ -41,21 +42,13 @@ interface AddBusinessProps {
 
 const AddBusinessForm = ({ categories }: AddBusinessProps) => {
   const { data: session, status } = useSession();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>(1);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [images, setImages] = useState<File[]>([]);
+  const [allowedStep, setAllowedStep] = useState<number>(1);
   const uploadMutation = useCreateUploadMutation();
   const hours = useGenerateHours();
-
-  const polishDaysOfWeek = {
-    monday: "Poniedziałek",
-    tuesday: "Wtorek",
-    wednesday: "Środa",
-    thursday: "Czwartek",
-    friday: "Piątek",
-    saturday: "Sobota",
-    sunday: "Niedziela",
-  };
+  const { mutate: createBusiness } = useCreateBusiness();
 
   type WeekDays =
     | "monday"
@@ -107,8 +100,6 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
   };
   const [openHoursState, setOpenHoursState] = useState(openHours);
 
-
-
   const handleHoursChange = (
     updatedHours: Record<
       WeekDays,
@@ -129,36 +120,80 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
     },
   });
 
-  async function onSubmit(values: CreateBusinessSchemaType) {
-    if (images.length === 0) {
-      console.error("No images to upload.");
-      return;
-    }
+  async function handleFinalSubmit() {
+    setAllowedStep(step);
+    const values = form.getValues();
 
     const formData = new FormData();
     images.forEach((image) => {
       formData.append("file", image);
     });
-
-    const imagesIds = await uploadMutation.mutateAsync(formData as any);
-    console.log(imagesIds);
+    let imagesIds: { ids: number[] } = {ids: []};
+    
+    if(images.length > 0){
+      imagesIds = await uploadMutation.mutateAsync(formData as any);
+    }
+    values.images = imagesIds.ids;
+    createBusiness(values);
   }
 
   const toggleCategory = (categoryId: number) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
+    setSelectedCategories((prev) => {
+      const updatedCategories = prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
-    form.setValue("categoriesIds", selectedCategories);
+        : [...prev, categoryId];
+
+      setTimeout(() => form.setValue("categoriesIds", updatedCategories), 0);
+
+      return updatedCategories;
+    });
   };
 
-  const nextStep = () => setStep((s) => s + 1);
+  const nextStep = async () => {
+    setAllowedStep(step);
+    console.log(form.getValues());
+
+    let isValid = false;
+
+    switch (step) {
+      case 1:
+        isValid = await form.trigger(["name", "description"]);
+        break;
+
+      case 2:
+        isValid = await form.trigger(["phone", "email"]);
+        break;
+
+      case 3:
+        isValid = await form.trigger(["categoriesIds", "city"]);
+        break;
+
+      case 4:
+        isValid = await form.trigger(["street","buildingNumber",]);
+        break;
+
+      case 5:
+        isValid = await form.trigger(["postalCode", "images"]);
+        break;
+
+      case 6:
+        isValid = true;
+        break;
+
+      default:
+        console.error("Unknown step");
+    }
+
+    if (isValid || allowedStep - 1 >= step) {
+      setStep((s) => s + 1);
+    } else {
+      console.error("Validation failed for current step.");
+    }
+  };
   const prevStep = () => setStep((s) => s - 1);
 
   const onDrop = (acceptedFiles: File[]) => {
     setImages((prev) => [...prev, ...acceptedFiles]);
-    form.setValue("images", [...images, ...acceptedFiles]);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -169,7 +204,7 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4">
         <div className="space-y-2">
           <h2 className="text-center text-2xl md:text-3xl font-semibold">
             Krok {step} z 6
@@ -177,7 +212,6 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
           <Progress value={(step / 6) * 100} />
         </div>
 
-        {/* Krok 1: Nazwa i opis */}
         {step === 1 && (
           <>
             <FormField
@@ -249,110 +283,84 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
           </>
         )}
 
-        {/* Krok 3: Kategorie */}
         {step === 3 && (
           <>
-            <FormField
-              control={form.control}
-              name="categoriesIds"
-              render={({ field }) => (
-                <FormItem className="space-y-1 flex flex-col items-start">
-                  <FormLabel className="text-xl text-black/70 font-semibold">
-                    Kategorie
-                  </FormLabel>
-                  <FormControl>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button
-                          variant="outline"
-                          className="w-fit px-10 py-6 md:px-20 cursor-pointer text-lg"
-                        >
-                          Wybierz kategorie
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuLabel className="text-xl">
-                          Wybierz kategorie
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {categories?.map((category) => (
-                          <DropdownMenuItem
-                            key={category.id}
-                            onClick={() => toggleCategory(category.id)}
-                            className={cn(
-                              "md:w-[300px] w-full cursor-pointer text-lg p-2 my-1",
-                              selectedCategories.includes(category.id)
-                                ? "bg-cyan-500 text-white"
-                                : ""
-                            )}
+            <div className="flex flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="categoriesIds"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col items-start">
+                    <FormLabel className="text-xl text-black/70 font-semibold">
+                      Kategorie
+                    </FormLabel>
+                    <FormControl>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button
+                            variant="outline"
+                            className="w-fit px-10 py-6 md:px-20 cursor-pointer text-lg"
                           >
-                            {category.name}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="street"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-xl text-black/70 font-semibold">
-                    Ulica
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Ulica" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+                            Wybierz kategorie
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuLabel className="text-xl">
+                            Wybierz kategorie
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {categories
+                            ?.filter(
+                              (category) =>
+                                !selectedCategories.includes(category.id)
+                            )
+                            ?.map((category) => (
+                              <DropdownMenuItem
+                                key={category.id}
+                                onClick={() => toggleCategory(category.id)}
+                                className={cn(
+                                  "md:w-[300px] w-full cursor-pointer text-lg p-2 my-1",
+                                  selectedCategories.includes(category.id)
+                                    ? "bg-cyan-500 text-white"
+                                    : ""
+                                )}
+                              >
+                                {category.name}
+                              </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div>
+                <h2 className="text-xl font-bold">Wybrane Kategorie</h2>
+                {selectedCategories.map((categoryId) => {
+                  const category = categories?.find(
+                    (cat) => cat.id === categoryId
+                  );
+                  return (
+                    category && (
+                      <div
+                        key={categoryId}
+                        className="flex items-center text-lg my-2 font-semibold"
+                      >
+                        {category.name}
+                        <button
+                          onClick={() => toggleCategory(categoryId)}
+                          className=" bg-red-500 hover:bg-red-600 text-white text-sm p-1 ml-2 cursor-pointer rounded-sm transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )
+                  );
+                })}
+              </div>
+            </div>
 
-        {/* Krok 4: Adres */}
-        {step === 4 && (
-          <>
-            <FormField
-              control={form.control}
-              name="buildingNumber"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-xl text-black/70 font-semibold">
-                    Numer budynku
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Numer budynku" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="postalCode"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-xl text-black/70 font-semibold">
-                    Kod pocztowy
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Kod pocztowy" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
-
-        {/* Krok 5: Miasto i zdjęcia */}
-        {step === 5 && (
-          <>
             <FormField
               control={form.control}
               name="city"
@@ -368,7 +376,63 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
                 </FormItem>
               )}
             />
+          </>
+        )}
 
+        {/* Krok 4: Adres */}
+        {step === 4 && (
+          <>
+            <FormField
+              control={form.control}
+              name="street"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xl text-black/70 font-semibold">
+                    Ulica
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Ulica" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="buildingNumber"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xl text-black/70 font-semibold">
+                    Numer budynku
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Numer budynku" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
+        {/* Krok 5: Miasto i zdjęcia */}
+        {step === 5 && (
+          <>
+            <FormField
+              control={form.control}
+              name="postalCode"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xl text-black/70 font-semibold">
+                    Kod pocztowy
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="Kod pocztowy" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="images"
@@ -382,13 +446,13 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
                       <div {...getRootProps({ className: "dropzone" })}>
                         <input {...getInputProps()} />
                         {isDragActive ? (
-                          <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">
+                          <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg cursor-pointer">
                             Upuść zdjęcia tutaj ...
                           </Button>
                         ) : (
-                          <Button className="bg-cyan-500 hover:bg-cyan-500 text-lg">
+                          <p className="text-cyan-500 text-lg">
                             Przeciągnij zdjęcia lub kliknij, aby wybrać.
-                          </Button>
+                          </p>
                         )}
                       </div>
                       {images.length > 0 && (
@@ -466,7 +530,8 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
             </Button>
           ) : (
             <Button
-              type="submit"
+              type="button"
+              onClick={handleFinalSubmit}
               className="bg-cyan-500 hover:bg-cyan-600 text-white px-10 py-6 text-xl"
             >
               Dodaj Salon!

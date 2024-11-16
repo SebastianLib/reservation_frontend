@@ -36,5 +36,5 @@ export default withAuth(
 
 // Middleware configuration with route matchers
 export const config = {
-    matcher: ["/verification", "/profile", "/dashboard/:path*", "/profile/:path*"],
+    matcher: ["/verification", "/profile", "/dashboard/:path*", "/profile/:path*", "/business/:path*"],
 };
