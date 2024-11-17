@@ -15,3 +15,11 @@ export interface BusinessEntity {
   owner: UserEntity;
   workers?: UserEntity[];
 }
+
+export interface InviteCodeEntity{
+  id: number;
+  inviteCode: string;
+  expirationTime: Date;
+  createdAt: Date;
+  business: BusinessEntity;
+}

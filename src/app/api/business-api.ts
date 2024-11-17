@@ -1,7 +1,8 @@
-import { BusinessEntity } from "@/models/business";
+import { BusinessEntity, InviteCodeEntity } from "@/models/business";
 import { api } from "./client";
 import { CreateBusinessSchemaType } from "@/schemas/CreateBusinessSchema";
 import { getSession } from "next-auth/react";
+import { InviteSchemaType } from "@/schemas/InviteSchema";
 
 export namespace BusinessApi {
   export const getBusinessByUserId = async (userId: string) => {
@@ -15,19 +16,14 @@ export namespace BusinessApi {
   };
 
   export const createBusiness = async (data: CreateBusinessSchemaType): Promise<BusinessEntity> => {
-    const session = await getSession();
 
-    const token = session?.accessToken;
-
-    if (!token) {
-      throw new Error('Brak tokenu autoryzacji');
-    }
+    const response = await api.post(`/business`, data);
   
-    const response = await api.post(`/business`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    return response.data;
+  };
+  export const createInvites = async (data: InviteSchemaType & {businessId:string}): Promise<InviteCodeEntity[]> => {
+
+    const response = await api.post(`/business/invite`, data);
   
     return response.data;
   };

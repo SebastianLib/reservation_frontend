@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "./use-toast";
 import { CreateBusinessSchemaType } from "@/schemas/CreateBusinessSchema";
 import axios from "axios";
+import { InviteSchemaType } from "@/schemas/InviteSchema";
 
 export const businessKeys = {
   businessByUserId: (userId: string) => ["businesess", "user", userId],
@@ -38,7 +39,30 @@ export const useCreateBusiness = () =>{
     },
     onError: (error: unknown) => {
         let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";
-
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.response?.data?.message || errorMessage;
+        }
+        toast({
+            variant: "destructive",
+            title: "Błąd podczas dodawania salonu",
+            description: errorMessage,
+        });
+    },
+});
+}
+export const useCreateInvites = () =>{
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: InviteSchemaType & {businessId:string}) => BusinessApi.createInvites(data),
+    onSuccess: () => {
+        toast({
+            title: "Udało się stworzyć zaproszenia!",
+        });
+        queryClient.invalidateQueries();
+    },
+    onError: (error: unknown) => {
+        let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";
         if (axios.isAxiosError(error)) {
             errorMessage = error.response?.data?.message || errorMessage;
         }

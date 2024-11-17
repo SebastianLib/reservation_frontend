@@ -32,7 +32,7 @@ const BusinessSidebar = () => {
       </div>
 
       <div className="ml-2">
-        <InvitePeople />
+        <InvitePeople/>
       </div>
     </div>
   );
