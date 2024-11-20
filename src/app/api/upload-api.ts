@@ -1,4 +1,3 @@
-import { FileEntity } from "@/models/upload";
 import { api } from "./client";
 
 export namespace UploadApi {

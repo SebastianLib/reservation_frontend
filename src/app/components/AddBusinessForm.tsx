@@ -1,6 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -41,7 +41,7 @@ interface AddBusinessProps {
 }
 
 const AddBusinessForm = ({ categories }: AddBusinessProps) => {
-  const { data: session, status } = useSession();
+  const { data: session} = useSession();
   const [step, setStep] = useState<number>(1);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [images, setImages] = useState<File[]>([]);
@@ -289,7 +289,7 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
               <FormField
                 control={form.control}
                 name="categoriesIds"
-                render={({ field }) => (
+                render={() => (
                   <FormItem className="space-y-1 flex flex-col items-start">
                     <FormLabel className="text-xl text-black/70 font-semibold">
                       Kategorie
@@ -436,7 +436,7 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
             <FormField
               control={form.control}
               name="images"
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="space-y-1">
                   <FormLabel className="text-xl text-black/70 font-semibold">
                     Obrazy (przeciągnij i upuść)

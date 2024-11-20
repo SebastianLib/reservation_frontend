@@ -6,23 +6,31 @@ import axios from "axios";
 import { InviteSchemaType } from "@/schemas/InviteSchema";
 
 export const businessKeys = {
-  businessByUserId: (userId: string) => ["businesess", "user", userId],
-  getBusinessById: (userId: string) => ["business", "user", userId],
+  getBusinessByUserId: () => ["businesess", "user"],
+  getBusinessById: (businessId: string) => ["business", "user", businessId],
+  getInivtesById: (businessId: string) => ["business", "user", businessId],
 };
 
-export function useBusinessByUserIdQuery(userId: string) {
+export function useBusinessByUserIdQuery() {
   return useQuery({
-    queryKey: businessKeys.businessByUserId(userId),
-    queryFn: () => BusinessApi.getBusinessByUserId(userId),
-    enabled: !!userId,
+    queryKey: businessKeys.getBusinessByUserId(),
+    queryFn: () => BusinessApi.getBusinessByUserId(),
   });
 }
 
-export function useGetBusinessByIdQuery(id: string) {
+export function useGetBusinessByIdQuery(businessId: string) {
   return useQuery({
-    queryKey: businessKeys.getBusinessById(id),
-    queryFn: () => BusinessApi.getBusinessById(id),
-    enabled: !!id,
+    queryKey: businessKeys.getBusinessById(businessId),
+    queryFn: () => BusinessApi.getBusinessById(businessId),
+    enabled: !!businessId,
+  });
+}
+
+export function useGetInvitesQuery(businessId: string) {
+  return useQuery({
+    queryKey: businessKeys.getInivtesById(businessId),
+    queryFn: () => BusinessApi.getInvitesById(businessId),
+    enabled: !!businessId,
   });
 }
 
@@ -52,14 +60,12 @@ export const useCreateBusiness = () =>{
 }
 export const useCreateInvites = () =>{
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: InviteSchemaType & {businessId:string}) => BusinessApi.createInvites(data),
-    onSuccess: () => {
+    onSuccess: (data)=> {
         toast({
             title: "Udało się stworzyć zaproszenia!",
         });
-        queryClient.invalidateQueries();
     },
     onError: (error: unknown) => {
         let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";

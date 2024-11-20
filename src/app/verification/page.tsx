@@ -17,7 +17,7 @@ import {
   VerificationCodeSchemaType,
 } from "@/schemas/VerificationCodeSchema";
 import { useSession } from "next-auth/react"; // Importuj useSession
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useVerificationUserMutation } from "@/hooks/user-queries";
 
 const VerificationPage = () => {
@@ -32,7 +32,7 @@ const VerificationPage = () => {
     function onSubmit(values: VerificationCodeSchemaType) {
       if (session?.user?.id) {
         verifyUserMutation(
-          { id: session.user.id, code: values.verificationCode },
+          { id: String(session.user.id), code: values.verificationCode },
           {
             onSuccess:async () => {              
                 // const updatedSession = { ...session, user: { ...session.user, status: "ACTIVATED" } };

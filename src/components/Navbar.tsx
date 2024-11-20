@@ -5,6 +5,8 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton
 import MobileNavbar from "./MobileNavbar";
+import { ROLES } from "@/models/user";
+import JoinToTeam from "./JoinToTeam";
 
 const Navbar = () => {
   const { data: session, status } = useSession();
@@ -56,6 +58,9 @@ const Navbar = () => {
           </div>
         ) : (
           <div className="hidden md:flex gap-10 items-center">
+            {session?.user.role === ROLES.WORKER && (
+                <JoinToTeam />
+            )}
             <Link
               href="/profile"
               className="flex gap-4 text-xl font-semibold text-black/70 transition-colors hover:text-black"

@@ -10,12 +10,11 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Hasło", type: "password" },
         role: { label: "Rola", type: "text" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const { phone, password, role } = credentials!;
         
         if (!phone || !password || !role) return null;
 
-        // Logowanie użytkownika
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signin`, {
           method: "POST",
           body: JSON.stringify({ phone, password, role }), 

@@ -31,9 +31,8 @@ const SignupBusinessPage = () => {
   const { mutate: createUserMutation } = useCreateUserMutation();
 
   async function onSubmit(values: SignupSchemaType) {  
-    const { confirmPassword, ...rest } = values;
       
-    createUserMutation(rest, {
+    createUserMutation(values, {
       onSuccess: async () => {
         const result = await signIn("credentials", {
           phone: values.phone.substring(3),

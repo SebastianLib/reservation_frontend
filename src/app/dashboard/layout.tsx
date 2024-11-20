@@ -1,12 +1,13 @@
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { ReactNode } from "react";
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
-const DashBoardLayout = async (props: Props) => {
+const DashBoardLayout = async ({children}: Props) => {
   const session = await getServerSession(authOptions);
   return (
     <div className=" grid grid-cols-12">
@@ -18,7 +19,7 @@ const DashBoardLayout = async (props: Props) => {
           User Profile
         </Link>
       </div>
-      <div className="col-span-4">{props.children}</div>
+      <div className="col-span-4">{children}</div>
     </div>
   );
 };

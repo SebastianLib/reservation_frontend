@@ -16,12 +16,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 const OwnerHomePage = () => {
-  const { data: session, status } = useSession();
   const {
     data: businesses,
     isLoading: isLoadingBusinesses,
     error: errorBusinesses,
-  } = useBusinessByUserIdQuery(session?.user?.id!);
+  } = useBusinessByUserIdQuery();
   const {
     data: categories,
     isLoading: isLoadingCategories,

@@ -42,10 +42,9 @@ const SignupPage = () => {
   }, [session, router]);
 
   const onSubmit = async (values: SignupSchemaType) => {
-    const { confirmPassword, ...userData } = values;
 
     createUserMutation(
-      { ...userData, role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER },
+      { ...values, role: isWorker ? ROLES.WORKER : ROLES.CUSTOMER },
       {
         onSuccess: async () => {
           const result = await signIn("credentials", {

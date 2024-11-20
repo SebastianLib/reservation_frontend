@@ -9,28 +9,21 @@ import React from "react";
 const BusinessPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const {
-    data: businesses,
+    data: business,
     isLoading: isLoadingBusinesses,
     error: errorBusinesses,
   } = useGetBusinessByIdQuery(id);
   const { data: session, status: sessionStatus } = useSession();
 
-  if (isLoadingBusinesses || sessionStatus === "loading") {
+  if (sessionStatus === "loading" || isLoadingBusinesses) {
     return <LoadingSpinner className="sm:pl-[260px]" />;
   }
-
-  if (errorBusinesses || sessionStatus === "unauthenticated") {
-    return <div>Error loading data</div>;
-  }
-
-  const isOwner = session?.user?.ownedBusinesses?.some(
-    (business) => business.id === Number(id)
-  );
-  const isWorker = session?.user?.businesses?.some(
-    (business) => business.id === Number(id)
+  
+  const isWorker = business?.workers?.some(
+    (user) => user.id === session?.user?.id
   );
 
-  if (!isOwner && !isWorker) {
+  if (session?.user?.id !== business?.owner.id && !isWorker) {
     redirect("/");
   }
 
