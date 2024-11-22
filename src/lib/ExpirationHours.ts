@@ -12,5 +12,5 @@ export const expirationHours:ExpirationHoursProps = [
     { time: "24 godziny", value: 24 },
     { time: "72 godziny", value: 72 },
     { time: "168 godzin", value: 168 },
-    { time: "Nigdy", value: null },
+    { time: "Nigdy", value: 0 },
 ]

@@ -52,8 +52,6 @@ export const userKeys = {
             if (axios.isAxiosError(error)) {
                 errorMessage = error.response?.data?.message || errorMessage;
             }
-            console.log(error);
-
             toast({
                 variant: "destructive",
                 title: "Błąd weryfikacji",

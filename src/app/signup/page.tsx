@@ -192,7 +192,7 @@ const SignupPage = () => {
 
             <Button
               type="submit"
-              className="bg-cyan-500 hover:bg-cyan-600 text-white w-full text-xl md:text-2xl py-4 md:py-8"
+              className=" w-full text-xl md:text-2xl py-4 md:py-8"
             >
               Zarejestruj się!
             </Button>

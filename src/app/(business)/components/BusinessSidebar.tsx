@@ -15,10 +15,17 @@ const BusinessSidebar = () => {
   const toggleSidebar = () => {
     setOpen((prev) => !prev);
   };
-  console.log(session?.user);
 
-  const isWorker = session?.user?.businesses.some(business=> business.id === Number(id))
-  const isOwner = session?.user?.ownedBusinesses.some(business => business.id === Number(id))
+  if (status === "loading") return <LoadingSidebar open={open}/>;
+console.log(session?.user?.businesses);
+
+  const isWorker = session?.user?.businesses.some(
+    (business) => business.id === Number(id)
+  );
+  const isOwner = session?.user?.ownedBusinesses.some(
+    (business) => business.id === Number(id)
+  );
+
   if (!isWorker && !isOwner) {
     redirect("/");
   }
@@ -44,20 +51,16 @@ const BusinessSidebar = () => {
       </div>
 
       <div className="ml-2">
-        {status === "loading" ? (
-          <LoadingSidebar />
-        ) : (
-          <ul className="flex flex-col gap-4">
-            {session?.user.role === ROLES.OWNER && (
-              <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
-                <InvitePeople />
-              </li>
-            )}
+        <ul className="flex flex-col gap-4">
+          {session?.user.role === ROLES.OWNER && (
             <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
-              <span>Grafiki</span>
+              <InvitePeople />
             </li>
-          </ul>
-        )}
+          )}
+          <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
+            <span>Grafiki</span>
+          </li>
+        </ul>
       </div>
     </div>
   );

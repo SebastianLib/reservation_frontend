@@ -1,27 +1,7 @@
-import { useGetInvitesQuery } from "@/hooks/business-queries";
-import { useParams } from "next/navigation";
 import SignleInvite from "./SignleInvite";
+import { InviteCodeEntity } from "@/models/business";
 
-const InviteCodes = () => {
-  const { id } = useParams();
-  const {
-    data: invites,
-    isLoading: isLoadingInvites,
-    error: errorInvites,
-  } = useGetInvitesQuery(String(id));
-
-  if (isLoadingInvites) {
-    return (
-      <div>
-        <h2 className="text-2xl font-bold">Twoje Zaproszenia</h2>
-        <p>ładowanie zaproszeń...</p>
-      </div>
-    );
-  }
-
-  if (errorInvites) {
-    return <p>Wystąpił błąd podczas pobierania zaproszeń.</p>;
-  }
+const InviteCodes = ({invites}:{invites:InviteCodeEntity[]}) => {
 
   return (
     <div className="flex flex-col gap-2">

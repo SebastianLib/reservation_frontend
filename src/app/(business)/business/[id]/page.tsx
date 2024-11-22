@@ -14,18 +14,25 @@ const BusinessPage = ({ params }: { params: { id: string } }) => {
     error: errorBusinesses,
   } = useGetBusinessByIdQuery(id);
   const { data: session, status: sessionStatus } = useSession();
-
+  console.log("Xdddddddd");
+  
   if (sessionStatus === "loading" || isLoadingBusinesses) {
     return <LoadingSpinner className="sm:pl-[260px]" />;
   }
-  
+
+  // if (!business || errorBusinesses) {
+    
+  //   redirect("/"); 
+  // }
+
   const isWorker = business?.workers?.some(
     (user) => user.id === session?.user?.id
   );
 
-  if (session?.user?.id !== business?.owner.id && !isWorker) {
-    redirect("/");
-  }
+  // if (session?.user?.id !== business?.owner?.id && !isWorker) {
+    
+  //   redirect("/");
+  // }
 
   return (
     <PageLayout className="pl-12 sm:pl-[260px]">

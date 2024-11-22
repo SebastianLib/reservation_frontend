@@ -151,8 +151,6 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
 
   const nextStep = async () => {
     setAllowedStep(step);
-    console.log(form.getValues());
-
     let isValid = false;
 
     switch (step) {
@@ -524,7 +522,6 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
             <Button
               type="button"
               onClick={nextStep}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-10 py-6 text-xl"
             >
               Dalej
             </Button>
@@ -532,7 +529,6 @@ const AddBusinessForm = ({ categories }: AddBusinessProps) => {
             <Button
               type="button"
               onClick={handleFinalSubmit}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-10 py-6 text-xl"
             >
               Dodaj Salon!
             </Button>

@@ -8,7 +8,7 @@ import { InviteSchemaType } from "@/schemas/InviteSchema";
 export const businessKeys = {
   getBusinessByUserId: () => ["businesess", "user"],
   getBusinessById: (businessId: string) => ["business", "user", businessId],
-  getInivtesById: (businessId: string) => ["business", "user", businessId],
+  getInivtesById:() => ["invite"],
 };
 
 export function useBusinessByUserIdQuery() {
@@ -28,7 +28,7 @@ export function useGetBusinessByIdQuery(businessId: string) {
 
 export function useGetInvitesQuery(businessId: string) {
   return useQuery({
-    queryKey: businessKeys.getInivtesById(businessId),
+    queryKey: businessKeys.getInivtesById(),
     queryFn: () => BusinessApi.getInvitesById(businessId),
     enabled: !!businessId,
   });
@@ -58,13 +58,39 @@ export const useCreateBusiness = () =>{
     },
 });
 }
-export const useCreateInvites = () =>{
+export const useCreateInvites = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient(); 
+  return useMutation({
+    mutationFn: (data: InviteSchemaType & { businessId: string }) =>
+      BusinessApi.createInvites(data),
+    onSuccess: () => {
+      toast({
+        title: "Udało się stworzyć zaproszenia!",
+      });
+      queryClient.invalidateQueries({ queryKey: ['invite'] });
+    },
+    onError: (error: unknown) => {
+      let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";
+      if (axios.isAxiosError(error)) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+      toast({
+        variant: "destructive",
+        title: "Błąd podczas tworzenia zaproszeń",
+        description: errorMessage,
+      });
+    },
+  });
+};
+
+export const useJoinToBusiness = () =>{
   const { toast } = useToast();
   return useMutation({
-    mutationFn: (data: InviteSchemaType & {businessId:string}) => BusinessApi.createInvites(data),
+    mutationFn: (code:string) => BusinessApi.joinToBusiness({code}),
     onSuccess: (data)=> {
         toast({
-            title: "Udało się stworzyć zaproszenia!",
+            title: "Udało się dołączyć!",
         });
     },
     onError: (error: unknown) => {
@@ -74,7 +100,7 @@ export const useCreateInvites = () =>{
         }
         toast({
             variant: "destructive",
-            title: "Błąd podczas dodawania salonu",
+            title: "Błąd podczas dołączania",
             description: errorMessage,
         });
     },

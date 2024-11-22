@@ -14,22 +14,23 @@ export namespace BusinessApi {
     return res.data;
   };
 
-  export const getInvitesById = async (businessId: string) => {
+  export const getInvitesById = async (businessId: string) => {    
     const res = await api.get<InviteCodeEntity[]>(`/business/invite/${businessId}`);
     return res.data;
   };
 
   export const createBusiness = async (data: CreateBusinessSchemaType): Promise<BusinessEntity> => {
-
     const response = await api.post(`/business`, data);
-  
     return response.data;
   };
 
   export const createInvites = async (data: InviteSchemaType & {businessId:string}): Promise<InviteCodeEntity[]> => {
-
     const response = await api.post(`/business/invite`, data);
-  
+    return response.data;
+  };
+
+  export const joinToBusiness = async ({code}: { code:string}): Promise<BusinessEntity> => {
+    const response = await api.post(`/business/join/${code}`);
     return response.data;
   };
 

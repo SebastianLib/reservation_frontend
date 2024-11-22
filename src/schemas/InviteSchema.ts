@@ -4,7 +4,7 @@ import { z } from "zod";
 export const inviteSchema = () => {
   return z.object({
     quantity: z.number({ message: "Wymagane" }).positive(),
-    expirationTime: z.number({ message: "Wymagane" }).positive().optional(),
+    expirationTime: z.number({ message: "Wymagane" }),
   });
 };
 
