@@ -104,5 +104,31 @@ export const useJoinToBusiness = () =>{
             description: errorMessage,
         });
     },
+    
 });
+}
+
+export const useDeleteBusiness = () =>{
+  const { toast } = useToast();
+  return useMutation({
+    mutationFn: (businessId:string) => BusinessApi.deleteBusiness(businessId),
+    onSuccess: ()=> {
+        toast({
+            title: "Udało się Usunąść salon!",
+        });
+    },
+    onError: (error: unknown) => {
+        let errorMessage = "Wystąpił błąd. Spróbuj ponownie.";
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.response?.data?.message || errorMessage;
+        }
+        toast({
+            variant: "destructive",
+            title: "Błąd podczas usuwania salonu.",
+            description: errorMessage,
+        });
+    },
+    
+});
+
 }

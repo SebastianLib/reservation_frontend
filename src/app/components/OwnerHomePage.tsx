@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import AddBusinessForm from "./AddBusinessForm";
+import AddBusinessForm from "./businessForm/AddBusinessForm";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useCategoriesQuery } from "@/hooks/category-queries";
 import Image from "next/image";
@@ -55,7 +55,6 @@ const OwnerHomePage = () => {
           </Link>
         ))}
         
-        {/* Przycisk "Dodaj Salon" */}
         <div className="w-full h-[250px] lg:h-[300px] flex flex-col justify-end cursor-pointer relative overflow-hidden bg-gray-100  items-center">
           <Dialog>
             <DialogTrigger className="bg-white w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-400">

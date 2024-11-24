@@ -1,34 +1,29 @@
 "use client";
+import React, { useState } from "react";
+import LoadingSidebar from "@/components/LoadingSidebar";
+import InvitePeople from "./InvitePeople";
 import { cn } from "@/lib/utils";
 import { ArrowLeftSquareIcon, ArrowRightSquareIcon } from "lucide-react";
-import React, { useState } from "react";
-import InvitePeople from "./InvitePeople";
-import { useSession } from "next-auth/react";
-import LoadingSidebar from "@/components/LoadingSidebar";
+import { useBusinessAuthorization } from "@/hooks/useBusinessAuthorization";
 import { ROLES } from "@/models/user";
-import { redirect, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { BusinessSidebarLinks } from "@/lib/BusinessSidebarLinks";
+import Link from "next/link";
 
 const BusinessSidebar = () => {
-  const { data: session, status } = useSession();
-  const [open, setOpen] = useState(false);
   const { id } = useParams();
-  const toggleSidebar = () => {
-    setOpen((prev) => !prev);
-  };
-
-  if (status === "loading") return <LoadingSidebar open={open}/>;
-console.log(session?.user?.businesses);
-
-  const isWorker = session?.user?.businesses.some(
-    (business) => business.id === Number(id)
+  const { business, session, loading, isOwner } = useBusinessAuthorization(
+    id as string
   );
-  const isOwner = session?.user?.ownedBusinesses.some(
-    (business) => business.id === Number(id)
-  );
+  const [open, setOpen] = useState(false);
 
-  if (!isWorker && !isOwner) {
-    redirect("/");
-  }
+  if (loading) return <LoadingSidebar open={open} />;
+
+  const toggleSidebar = () => setOpen((prev) => !prev);
+
+  const filteredLinks = BusinessSidebarLinks.filter((link) =>
+    link.access.includes(session?.user?.role!)
+  );
 
   return (
     <div
@@ -52,14 +47,22 @@ console.log(session?.user?.businesses);
 
       <div className="ml-2">
         <ul className="flex flex-col gap-4">
-          {session?.user.role === ROLES.OWNER && (
-            <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
-              <InvitePeople />
-            </li>
+        {session?.user.role === ROLES.OWNER && (
+              <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
+                <InvitePeople />
+              </li>
           )}
-          <li className="text-lg font-semibold flex items-center gap-2 cursor-pointer">
-            <span>Grafiki</span>
-          </li>
+          {filteredLinks.map((label, index) => (
+            <Link href={`/business/${id}/${label.link}`}>
+              <li
+                key={index}
+                className="text-lg font-semibold flex items-center gap-2 cursor-pointer"
+              >
+                <label.icon size={20} />
+                <span>{label.name}</span>
+              </li>
+            </Link>
+          ))}
         </ul>
       </div>
     </div>

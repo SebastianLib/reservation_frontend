@@ -1,3 +1,4 @@
+import PageLayout from "@/components/PageLayout";
 import BusinessSidebar from "./components/BusinessSidebar";
 
 export default function RootLayout({
@@ -8,7 +9,9 @@ export default function RootLayout({
   return (
     <>
       <BusinessSidebar />
-      <main>{children}</main>
+      <main>
+        <PageLayout className="pl-12 sm:pl-[260px]">{children}</PageLayout>
+      </main>
     </>
   );
 }

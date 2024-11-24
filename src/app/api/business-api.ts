@@ -20,18 +20,23 @@ export namespace BusinessApi {
   };
 
   export const createBusiness = async (data: CreateBusinessSchemaType): Promise<BusinessEntity> => {
-    const response = await api.post(`/business`, data);
+    const response = await api.post<BusinessEntity>(`/business`, data);
     return response.data;
   };
 
   export const createInvites = async (data: InviteSchemaType & {businessId:string}): Promise<InviteCodeEntity[]> => {
-    const response = await api.post(`/business/invite`, data);
+    const response = await api.post<InviteCodeEntity[]>(`/business/invite`, data);
     return response.data;
   };
 
   export const joinToBusiness = async ({code}: { code:string}): Promise<BusinessEntity> => {
-    const response = await api.post(`/business/join/${code}`);
+    const response = await api.post<BusinessEntity>(`/business/join/${code}`);
     return response.data;
+  };
+
+  export const deleteBusiness = async (businessId: string): Promise<boolean> => {    
+    const res = await api.delete<boolean>(`/business/${businessId}`);
+    return res.data;
   };
 
 }
