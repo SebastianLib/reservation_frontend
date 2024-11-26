@@ -9,15 +9,17 @@ import { ROLES } from "@/models/user";
 import { useParams } from "next/navigation";
 import { BusinessSidebarLinks } from "@/lib/BusinessSidebarLinks";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const BusinessSidebar = () => {
   const { id } = useParams();
-  const { business, session, loading, isOwner } = useBusinessAuthorization(
-    id as string
-  );
+  // const { business, session, loading, isOwner } = useBusinessAuthorization(
+  //   id as string
+  // );
+  const { data: session, status: sessionStatus } = useSession();
   const [open, setOpen] = useState(false);
-
-  if (loading) return <LoadingSidebar open={open} />;
+ 
+  if (sessionStatus === "loading") return <LoadingSidebar open={open} />;
 
   const toggleSidebar = () => setOpen((prev) => !prev);
 

@@ -16,6 +16,7 @@ export default function Home() {
 
   if(session?.user && session?.user.status !== USER_STATUS.ACTIVATED) {
     redirect("/verification")
+    return <></>;
   }
   return (
     <PageLayout>

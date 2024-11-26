@@ -19,9 +19,9 @@ export function useBusinessAuthorization(id: string) {
     return { loading: true };
   }
 
-  if (!business || errorBusinesses || !isAuthorized) {
-    redirect("/");
-  }
+  // if (!business || errorBusinesses || !isAuthorized) {
+  //   redirect("/");
+  // }
 
   return { business, session, loading: false, isOwner, isWorker };
 }
